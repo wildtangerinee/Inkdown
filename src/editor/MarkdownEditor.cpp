@@ -22,6 +22,11 @@ void MarkdownEditor::keyPressEvent(QKeyEvent *event)
 {
     // QTextEdit::keyPressEvent(QKeyEvent *) 返回 void，负责 Qt 原有的编辑行为。
     // 先调用它再检查文档，才能看到这次按键插入的空格；按键类型从 event 读取。
+    if (event->key() == Qt::Key_Backspace && event->modifiers() == Qt::NoModifier && tryExitEmptyHeading()) {
+      event->accept();
+      return;
+    }
+    
     QTextEdit::keyPressEvent(event);
     if (event->text() == "*") {
         tryHandleBold();
@@ -47,10 +52,10 @@ void MarkdownEditor::tryHandleHeading()
     qreal pSize;
     if (bText == "# ") {
         hLevel = 1;
-        pSize = 20;
+        pSize = 35;
     } else if (bText == "## ") {
         hLevel = 2;
-        pSize = 16;
+        pSize = 30;
     } else {
         return;
     }
@@ -68,13 +73,20 @@ void MarkdownEditor::tryHandleHeading()
     // 标题级别记录「这是几级标题」，将来导出时可以据此还原 # 或 ##。
     auto bf = cursor.blockFormat();
     bf.setHeadingLevel(hLevel);
+    bf.setTopMargin(hLevel == 1 ? 30 : 20);
+    bf.setBottomMargin(6);
     cursor.setBlockFormat(bf);
+    QTextCharFormat mcf;
+    mcf.setFontPointSize(pSize);
+    mcf.setFontWeight(QFont::Bold);
+    cursor.mergeBlockCharFormat(mcf);
     cursor.endEditBlock();
 
     // 标题级别本身不会让这里输入的文字变大。此时段落为空，
     // setCurrentCharFormat() 设置接下来输入的字符格式，字号单位是磅。
     auto cf = currentCharFormat();
     cf.setFontPointSize(pSize);
+    cf.setFontWeight(QFont::Bold);
     setCurrentCharFormat(cf);
 }
 
@@ -179,3 +191,12 @@ void MarkdownEditor::tryHandleUnorderedList()
     cursor.endEditBlock();
     setTextCursor(cursor);
 }
+
+bool MarkdownEditor::tryExitEmptyHeading() 
+{
+  auto cursor = textCursor();
+  if (!cursor->hasSelection()) {
+    return false;
+  }
+  
+  

@@ -1,17 +1,20 @@
 #include <QApplication>
 #include <QMainWindow>
 
-#include "editor/MarkdownEditor.h"
+
+#include "ui/DocumentPage.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
     QMainWindow window;
-    window.show();
+    window.resize(900, 650);
 
-    auto *editor = new MarkdownEditor;
-    window.setCentralWidget(editor);
+    auto *page = new DocumentPage;
+    window.setCentralWidget(page);
+    window.show();
+    page->focusTitle();
 
     return app.exec();
 }

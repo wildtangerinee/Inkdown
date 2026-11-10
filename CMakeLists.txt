@@ -13,6 +13,7 @@ qt_standard_project_setup()
 qt_add_executable(Inkdown
     src/app/main.cpp
     src/editor/MarkdownEditor.cpp
+    src/ui/DocumentPage.cpp
 )
 
 target_include_directories(Inkdown PRIVATE src)

@@ -12,4 +12,5 @@ private:
     void tryHandleHeading();
     void tryHandleBold();
     void tryHandleUnorderedList();
+    bool tryExitEmptyHeading();
 };
